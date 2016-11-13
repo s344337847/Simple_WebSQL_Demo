@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script type="text/javascript">
+        var db = openDatabase('mydb', '1.0', 'Test DB', 2 * 1024 * 1024);
+
+        function insert() {
+            db.transaction(function(tx) {
+                tx.executeSql('CREATE TABLE IF NOT EXISTS LOGS (id unique, log)');
+                tx.executeSql('INSERT INTO LOGS (id, log) VALUES (?, ?)', [document.getElementById('insert_input_id').value, document.getElementById('insert_input').value]);
+                var msg = '<p>数据添加成功。</p>';
+                document.querySelector('#status').innerHTML += msg;
+            });
+        }
+
+        function update() {
+            db.transaction(function(tx) {
+                tx.executeSql('UPDATE LOGS SET log=? WHERE id=?', [document.getElementById('update_input').value, document.getElementById('update_input_id').value]);
+                var msg = '<p>数据更改成功。</p>';
+                document.querySelector('#status').innerHTML += msg;
+            });
+        }
+
+        function deletedb() {
+            db.transaction(function(tx) {
+                tx.executeSql('delete from LOGS where id=?', [document.getElementById('delete_input').value]);
+                var msg = '<p>数据删除成功。</p>';
+                document.querySelector('#status').innerHTML = msg;
+            });
+        }
+
+        function select() {
+            db.transaction(function(tx) {
+                tx.executeSql('SELECT * FROM LOGS', [], function(tx, results) {
+                    var len = results.rows.length,
+                        i;
+                    for (i = 0; i < len; i++) {
+                        var msg = "<p><b>id:" + results.rows.item(i).id + ",logs:" + results.rows.item(i).log + "</b></p>";
+                        document.querySelector('#status').innerHTML += msg;
+                    }
+                }, null);
+            });
+        }
+    </script>
+</head>
+
+<body>
+    <p>HTML5 WebSQL 增删改查的简单使用</p>
+    <input id="insert_input_id" placeholder="请输入要添加的数据的ID!"></input>
+    <input id="insert_input" placeholder="请输入要添加的数据!"></input>
+    <button id="insert" onclick="insert();">添加</button>
+    </br>
+    </br>
+    <input id="update_input_id" placeholder="请输入要更改的数据id!"></input>
+    <input id="update_input" placeholder="请输入要更改的数据!"></input>
+    <button id="update" onclick="update();">更改</button>
+    </br>
+    </br>
+    <input id="delete_input" placeholder="请输入要删除的数据的id!"></input>
+    <button id="delete" onclick="deletedb();">删除</button>
+    </br>
+    </br>
+    <button id="select" onclick="select();">查询全部数据</button>
+    </br>
+    </br>
+    <div id="status" name="status">状态信息:</div>
+</body>
+
+</html>
